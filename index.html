@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Countdown Timer</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>Countdown Timer</h1>
+        <p class="subtitle">Select target date and time, start the countdown</p>
+      </header>
+
+      <div class="timer-form">
+        <div class="form-group">
+          <label for="timerName">Timer Name</label>
+          <input
+            type="text"
+            id="timerName"
+            placeholder="e.g., New Year, Birthday..."
+            maxlength="50"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="targetDate">Target Date</label>
+          <input type="date" id="targetDate" required />
+        </div>
+
+        <div class="form-group">
+          <label for="targetTime">Target Time</label>
+          <input type="time" id="targetTime" required />
+        </div>
+
+        <div class="form-group">
+          <label for="alertBefore">Alert Before</label>
+          <select id="alertBefore" class="form-select">
+            <option value="0">Only when finished</option>
+            <option value="60">1 hour before</option>
+            <option value="30">30 minutes before</option>
+            <option value="10">10 minutes before</option>
+            <option value="5">5 minutes before</option>
+            <option value="1">1 minute before</option>
+          </select>
+        </div>
+
+        <button id="addTimerBtn" class="btn btn-primary">Add Timer</button>
+      </div>
+
+      <div id="timersContainer" class="timers-container">
+        <!-- Timers will be dynamically added here -->
+      </div>
+
+      <div id="emptyState" class="empty-state">
+        <p>No timers added yet. Use the form above to add a new timer.</p>
+      </div>
+
+      <!-- Controls -->
+      <div class="controls-bar" id="controlsBar" style="display: none">
+        <div class="controls-left">
+          <button id="sortBtn" class="btn btn-secondary">
+            <svg
+              class="btn-icon"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M3 6h18M7 12h10M11 18h2" />
+            </svg>
+            Sort
+          </button>
+          <button id="filterBtn" class="btn btn-secondary">
+            <svg
+              class="btn-icon"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.35-4.35" />
+            </svg>
+            Filter
+          </button>
+          <button id="exportBtn" class="btn btn-secondary">
+            <svg
+              class="btn-icon"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            Export
+          </button>
+          <input
+            type="file"
+            id="importInput"
+            accept=".json"
+            style="display: none"
+          />
+          <button id="importBtn" class="btn btn-secondary">
+            <svg
+              class="btn-icon"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="17 8 12 3 7 8" />
+              <line x1="12" y1="3" x2="12" y2="15" />
+            </svg>
+            Import
+          </button>
+        </div>
+        <div class="controls-right">
+          <button
+            id="themeToggle"
+            class="btn btn-secondary"
+            title="Toggle Theme"
+          >
+            <svg
+              id="moonIcon"
+              class="btn-icon theme-icon"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+            </svg>
+            <svg
+              id="sunIcon"
+              class="btn-icon theme-icon"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              style="display: none"
+            >
+              <circle cx="12" cy="12" r="5" />
+              <line x1="12" y1="1" x2="12" y2="3" />
+              <line x1="12" y1="21" x2="12" y2="23" />
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+              <line x1="1" y1="12" x2="3" y2="12" />
+              <line x1="21" y1="12" x2="23" y2="12" />
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Sort/Filter Dropdown -->
+      <div id="sortFilterMenu" class="dropdown-menu" style="display: none">
+        <div class="dropdown-section">
+          <label>Sort By:</label>
+          <select id="sortSelect" class="dropdown-select">
+            <option value="date-asc">By Date (Near → Far)</option>
+            <option value="date-desc">By Date (Far → Near)</option>
+            <option value="name-asc">By Name (A-Z)</option>
+            <option value="name-desc">By Name (Z-A)</option>
+          </select>
+        </div>
+        <div class="dropdown-section">
+          <label>Filter:</label>
+          <select id="filterSelect" class="dropdown-select">
+            <option value="all">All</option>
+            <option value="active">Active</option>
+            <option value="expired">Expired</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <footer class="sign">
+        Created by
+        <a
+          href="https://serkanbayraktar.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Serkanby</a
+        >
+        |
+        <a
+          href="https://github.com/Serkanbyx"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Github</a
+        >
+      </footer>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Alert Modal -->
+    <div id="alertModal" class="modal">
+      <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <div class="modal-body">
+          <h2>🎉 Time's Up!</h2>
+          <p id="alertMessage"></p>
+          <button id="closeAlertBtn" class="btn btn-primary">OK</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
