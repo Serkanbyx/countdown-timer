@@ -21,24 +21,47 @@ A modern, feature-rich countdown timer application built with vanilla JavaScript
 - **Visual & Audio Alerts**: Modal popup and sound notification when timer completes
 - **Local Storage**: Automatic persistence - timers survive page refreshes
 - **Responsive Design**: Fully responsive layout for mobile, tablet, and desktop
-- **Modern UI/UX**: Clean, minimal interface with smooth animations
+- **Expired Timer Management**: Expired timers automatically move to the end of the list with distinct visual styling
+- **Modern UI/UX**: Clean, minimal interface with smooth animations and SVG icons
 
 ## Live Demo
 
-[🎮 View Live Demo](https://serkanbyx.github.io/s1.5_Countdown-Timer/) (if deployed)
+[🎮 View Live Demo](https://countdown-timerrrr.netlify.app/)
+
+## Screenshots
+
+### Light Mode
+
+The default light theme with a gradient background and clean card design.
+
+### Dark Mode
+
+Toggle to dark mode for comfortable viewing in low-light environments.
+
+### Timer Cards
+
+Each timer displays days, hours, minutes, and seconds in equal-sized boxes with progress tracking.
 
 ## Technologies
 
 - **HTML5**: Semantic markup, form elements, and accessibility features
 - **CSS3**: Modern CSS with Grid, Flexbox, CSS Variables, animations, and responsive design
-- **Vanilla JavaScript (ES6+)**: Classes, arrow functions, template literals, async/await patterns
+- **Vanilla JavaScript (ES6+)**: Classes, arrow functions, template literals, destructuring
 - **LocalStorage API**: Client-side data persistence for timers and theme preferences
 - **Web Audio API**: Programmatic audio generation for alert sounds
 - **Date API**: Native JavaScript Date object for time calculations and formatting
+- **SVG Icons**: Scalable vector icons for buttons and UI elements
 
 ## Installation
 
 ### Local Development
+
+Clone the repository:
+
+```bash
+git clone https://github.com/Serkanbyx/s1.5_Countdown-Timer.git
+cd s1.5_Countdown-Timer
+```
 
 #### Option 1: Python HTTP Server
 
@@ -85,14 +108,15 @@ Simply open `index.html` directly in your browser (note: some features may be li
 2. **Managing Timers**:
 
    - **View**: Timers automatically start and display real-time countdown
-   - **Pause/Resume**: Click the pause button to pause, resume button to continue
+   - **Pause/Resume**: Click the pause button to freeze the timer, resume button to continue from the exact moment
    - **Edit**: Click "Edit" button to modify timer details
-   - **Delete**: Click the "×" button in the top-right corner of any timer card
+   - **Delete**: Click the "x" button in the top-right corner of any timer card
 
 3. **Sorting & Filtering**:
 
    - Click "Sort" to organize timers by date (near to far, far to near) or name (A-Z, Z-A)
    - Click "Filter" to view all timers, only active timers, or only expired timers
+   - Expired timers are automatically moved to the end of the list
 
 4. **Export/Import**:
 
@@ -100,7 +124,7 @@ Simply open `index.html` directly in your browser (note: some features may be li
    - Click "Import" to load previously exported timers from a JSON file
 
 5. **Theme Toggle**:
-   - Click the theme icon (moon/sun) in the top-right to switch between light and dark modes
+   - Click the theme icon (moon/sun) to switch between light and dark modes
    - Your preference is automatically saved
 
 ## How It Works?
@@ -111,6 +135,11 @@ The application calculates time remaining by comparing the current time with the
 
 ```javascript
 calculateTimeRemaining() {
+    // If paused, return the saved remaining time
+    if (this.isPaused && this.pausedTimeRemaining) {
+        return this.pausedTimeRemaining;
+    }
+
     const now = new Date();
     const target = this.getTargetDateTime();
     const difference = target - now;
@@ -119,6 +148,37 @@ calculateTimeRemaining() {
     const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
     const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
     const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+    return { days, hours, minutes, seconds, expired: difference <= 0 };
+}
+```
+
+### Pause/Resume Mechanism
+
+When paused, the exact remaining time is stored. On resume, a new target date is calculated:
+
+```javascript
+pause() {
+    this.pausedTimeRemaining = this.calculateTimeRemaining();
+    this.isPaused = true;
+    this.stop();
+}
+
+resume() {
+    if (this.pausedTimeRemaining && !this.pausedTimeRemaining.expired) {
+        const now = new Date();
+        const remainingMs =
+            (this.pausedTimeRemaining.days * 24 * 60 * 60 * 1000) +
+            (this.pausedTimeRemaining.hours * 60 * 60 * 1000) +
+            (this.pausedTimeRemaining.minutes * 60 * 1000) +
+            (this.pausedTimeRemaining.seconds * 1000);
+
+        const newTarget = new Date(now.getTime() + remainingMs);
+        this.targetDate = newTarget.toISOString().split('T')[0];
+        this.targetTime = `${hours}:${minutes}:${seconds}`; // HH:MM:SS format
+    }
+    this.isPaused = false;
+    this.start();
 }
 ```
 
@@ -139,6 +199,8 @@ Each timer runs its own interval that updates every second:
 
 ```javascript
 start() {
+    if (this.isPaused) return;
+    this.stop(); // Prevent duplicate intervals
     this.updateDisplay();
     this.intervalId = setInterval(() => {
         this.updateDisplay();
@@ -148,17 +210,19 @@ start() {
 
 ### LocalStorage Structure
 
-Timers are stored in LocalStorage as JSON:
+Timers are stored in LocalStorage as JSON with pause state preservation:
 
 ```json
 [
   {
     "id": 1234567890.123,
     "name": "New Year",
-    "targetDate": "2024-12-31",
+    "targetDate": "2025-12-31",
     "targetTime": "23:59",
     "alertBefore": 60,
-    "createdAt": "2024-01-01T00:00:00.000Z"
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "isPaused": false,
+    "pausedTimeRemaining": null
   }
 ]
 ```
@@ -174,7 +238,9 @@ Edit CSS variables in `styles.css`:
   --primary-color: #6366f1;
   --primary-dark: #4f46e5;
   --secondary-color: #8b5cf6;
-  /* ... more variables */
+  --success-color: #10b981;
+  --warning-color: #f59e0b;
+  --danger-color: #ef4444;
 }
 ```
 
@@ -184,7 +250,7 @@ Edit the `playAlertSound()` function in `script.js`:
 
 ```javascript
 oscillator.frequency.value = 800; // Change frequency (Hz)
-oscillator.type = "sine"; // Change wave type: 'sine', 'square', 'sawtooth', 'triangle'
+oscillator.type = "sine"; // Options: 'sine', 'square', 'sawtooth', 'triangle'
 ```
 
 ### Add Custom Alert Times

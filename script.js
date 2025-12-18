@@ -12,6 +12,7 @@ class CountdownTimer {
         this.alertShown = false;
         this.createdAt = new Date().toISOString();
         this.initialDuration = null;
+        this.pausedTimeRemaining = null; // Store remaining time when paused
     }
 
     getTargetDateTime() {
@@ -21,6 +22,11 @@ class CountdownTimer {
     }
 
     calculateTimeRemaining() {
+        // If paused, return the saved remaining time
+        if (this.isPaused && this.pausedTimeRemaining) {
+            return this.pausedTimeRemaining;
+        }
+
         const now = new Date();
         const target = this.getTargetDateTime();
         const difference = target - now;
@@ -53,6 +59,18 @@ class CountdownTimer {
     }
 
     calculateProgress() {
+        // If paused, calculate progress based on paused remaining time
+        if (this.isPaused && this.pausedTimeRemaining) {
+            if (!this.initialDuration) {
+                const target = this.getTargetDateTime();
+                const created = new Date(this.createdAt);
+                this.initialDuration = Math.floor((target - created) / 1000);
+            }
+            if (this.initialDuration <= 0) return 0;
+            const elapsed = this.initialDuration - this.pausedTimeRemaining.totalSeconds;
+            return Math.max(0, Math.min(100, (elapsed / this.initialDuration) * 100));
+        }
+
         if (!this.initialDuration) {
             const target = this.getTargetDateTime();
             const created = new Date(this.createdAt);
@@ -72,6 +90,8 @@ class CountdownTimer {
 
     start() {
         if (this.isPaused) return;
+        // Stop any existing interval first to prevent duplicates
+        this.stop();
         this.updateDisplay();
         this.intervalId = setInterval(() => {
             this.updateDisplay();
@@ -79,11 +99,37 @@ class CountdownTimer {
     }
 
     pause() {
+        // Save current remaining time before pausing
+        this.pausedTimeRemaining = this.calculateTimeRemaining();
         this.isPaused = true;
         this.stop();
     }
 
     resume() {
+        // Calculate new target date based on saved remaining time
+        if (this.pausedTimeRemaining && !this.pausedTimeRemaining.expired) {
+            const now = new Date();
+            const remainingMs = 
+                (this.pausedTimeRemaining.days * 24 * 60 * 60 * 1000) +
+                (this.pausedTimeRemaining.hours * 60 * 60 * 1000) +
+                (this.pausedTimeRemaining.minutes * 60 * 1000) +
+                (this.pausedTimeRemaining.seconds * 1000);
+            
+            const newTarget = new Date(now.getTime() + remainingMs);
+            this.targetDate = newTarget.toISOString().split('T')[0];
+            
+            // Include seconds in target time (HH:MM:SS format)
+            const hours = String(newTarget.getHours()).padStart(2, '0');
+            const minutes = String(newTarget.getMinutes()).padStart(2, '0');
+            const seconds = String(newTarget.getSeconds()).padStart(2, '0');
+            this.targetTime = `${hours}:${minutes}:${seconds}`;
+            
+            // Reset initial duration for progress calculation
+            this.createdAt = now.toISOString();
+            this.initialDuration = null;
+        }
+        
+        this.pausedTimeRemaining = null;
         this.isPaused = false;
         this.start();
     }
@@ -155,6 +201,11 @@ class CountdownTimer {
         this.stop();
         showAlert(this.name);
         playAlertSound();
+        // Re-render to move expired timer to the end
+        setTimeout(() => {
+            renderTimers();
+            startAllTimers();
+        }, 500);
     }
 
     getFormattedTarget() {
@@ -205,6 +256,8 @@ function loadTimers() {
                 );
                 timer.id = t.id;
                 timer.createdAt = t.createdAt || new Date().toISOString();
+                timer.isPaused = t.isPaused || false;
+                timer.pausedTimeRemaining = t.pausedTimeRemaining || null;
                 return timer;
             });
             renderTimers();
@@ -223,7 +276,9 @@ function saveTimers() {
         targetDate: t.targetDate,
         targetTime: t.targetTime,
         alertBefore: t.alertBefore || 0,
-        createdAt: t.createdAt
+        createdAt: t.createdAt,
+        isPaused: t.isPaused || false,
+        pausedTimeRemaining: t.pausedTimeRemaining || null
     }));
     localStorage.setItem('countdownTimers', JSON.stringify(toSave));
 }
@@ -353,6 +408,7 @@ function pauseTimer(id) {
             showToast('Expired timers cannot be paused', 'warning');
             return;
         }
+        // Pause the timer (this will stop its interval and save remaining time)
         timer.pause();
         saveTimers();
         renderTimers();
@@ -368,6 +424,7 @@ function resumeTimer(id) {
             showToast('Expired timers cannot be resumed', 'warning');
             return;
         }
+        // Resume the timer (this will start its interval)
         timer.resume();
         saveTimers();
         renderTimers();
@@ -465,7 +522,7 @@ function addTimer(name, targetDate, targetTime, alertBefore = 0) {
     saveTimers();
     renderTimers();
     timer.start();
-        showToast(`"${name}" added`, 'success');
+    showToast(`"${name}" added`, 'success');
 }
 
 function escapeHtml(text) {
