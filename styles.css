@@ -1,24 +1,70 @@
+/**
+ * Countdown Timer - Stylesheet
+ * Modern, accessible, and responsive design
+ */
+
+/* ========================================
+   CSS Reset & Base Styles
+   ======================================== */
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+/* ========================================
+   CSS Custom Properties (Variables)
+   ======================================== */
+
 :root {
+    /* Primary Colors */
     --primary-color: #6366f1;
     --primary-dark: #4f46e5;
     --secondary-color: #8b5cf6;
+    
+    /* Status Colors */
     --success-color: #10b981;
     --danger-color: #ef4444;
     --warning-color: #f59e0b;
+    
+    /* Background & Surface */
     --bg-color: #f8fafc;
     --card-bg: #ffffff;
+    
+    /* Text Colors */
     --text-primary: #1e293b;
     --text-secondary: #64748b;
+    
+    /* Border & Shadow */
     --border-color: #e2e8f0;
     --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    
+    /* Focus Ring */
+    --focus-ring: 0 0 0 3px rgba(99, 102, 241, 0.4);
+    
+    /* Spacing */
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+    
+    /* Border Radius */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    
+    /* Transitions */
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.3s ease;
 }
+
+/* ========================================
+   Body & Container
+   ======================================== */
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -26,12 +72,55 @@ body {
     min-height: 100vh;
     padding: 20px;
     color: var(--text-primary);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 .container {
     max-width: 1200px;
     margin: 0 auto;
 }
+
+/* ========================================
+   Accessibility - Skip Link
+   ======================================== */
+
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: var(--primary-color);
+    color: white;
+    padding: var(--spacing-sm) var(--spacing-md);
+    z-index: 9999;
+    text-decoration: none;
+    font-weight: 600;
+    border-radius: 0 0 var(--radius-md) 0;
+    transition: top var(--transition-fast);
+}
+
+.skip-link:focus {
+    top: 0;
+    outline: none;
+}
+
+/* Screen Reader Only */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* ========================================
+   Header
+   ======================================== */
 
 header {
     text-align: center;
@@ -51,9 +140,13 @@ header h1 {
     opacity: 0.9;
 }
 
+/* ========================================
+   Timer Form
+   ======================================== */
+
 .timer-form {
     background: var(--card-bg);
-    border-radius: 12px;
+    border-radius: var(--radius-lg);
     padding: 30px;
     margin-bottom: 30px;
     box-shadow: var(--shadow-lg);
@@ -70,35 +163,67 @@ header h1 {
 
 .form-group label {
     font-weight: 600;
-    margin-bottom: 8px;
+    margin-bottom: var(--spacing-sm);
     color: var(--text-primary);
     font-size: 0.9rem;
 }
 
-.form-group input {
-    padding: 12px;
-    border: 2px solid var(--border-color);
-    border-radius: 8px;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-    font-family: inherit;
+.form-group .required {
+    color: var(--danger-color);
 }
 
-.form-group input:focus {
+.form-group input,
+.form-group select {
+    padding: 12px;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    transition: all var(--transition-normal);
+    font-family: inherit;
+    background: var(--card-bg);
+    color: var(--text-primary);
+}
+
+.form-group input:focus,
+.form-group select:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    box-shadow: var(--focus-ring);
 }
+
+.form-group input:hover,
+.form-group select:hover {
+    border-color: var(--primary-color);
+}
+
+/* ========================================
+   Buttons
+   ======================================== */
 
 .btn {
     padding: 12px 24px;
     border: none;
-    border-radius: 8px;
+    border-radius: var(--radius-md);
     font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all var(--transition-normal);
     font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    text-decoration: none;
+}
+
+.btn:focus {
+    outline: none;
+    box-shadow: var(--focus-ring);
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
 .btn-primary {
@@ -106,10 +231,27 @@ header h1 {
     color: white;
 }
 
-.btn-primary:hover {
+.btn-primary:hover:not(:disabled) {
     background: var(--primary-dark);
     transform: translateY(-2px);
     box-shadow: var(--shadow);
+}
+
+.btn-secondary {
+    background: var(--bg-color);
+    color: var(--text-primary);
+    border: 2px solid var(--border-color);
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background: var(--border-color);
+    transform: translateY(-2px);
+}
+
+.btn-secondary.active {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
 }
 
 .btn-danger {
@@ -117,10 +259,43 @@ header h1 {
     color: white;
 }
 
-.btn-danger:hover {
+.btn-danger:hover:not(:disabled) {
     background: #dc2626;
     transform: translateY(-2px);
 }
+
+.btn-pause {
+    background: var(--warning-color);
+    color: white;
+}
+
+.btn-pause:hover:not(:disabled) {
+    background: #d97706;
+}
+
+.btn-edit {
+    background: var(--secondary-color);
+    color: white;
+}
+
+.btn-edit:hover:not(:disabled) {
+    background: #7c3aed;
+}
+
+.btn-icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    stroke: currentColor;
+}
+
+.theme-icon {
+    margin-right: 0;
+}
+
+/* ========================================
+   Timers Container & Cards
+   ======================================== */
 
 .timers-container {
     display: grid;
@@ -132,10 +307,10 @@ header h1 {
 
 .timer-card {
     background: var(--card-bg);
-    border-radius: 12px;
+    border-radius: var(--radius-lg);
     padding: 25px;
     box-shadow: var(--shadow);
-    transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease;
+    transition: transform var(--transition-normal), box-shadow var(--transition-normal), opacity var(--transition-normal);
     position: relative;
     overflow: hidden;
     animation: cardAppear 0.4s ease forwards;
@@ -155,6 +330,10 @@ header h1 {
 .timer-card:hover {
     transform: translateY(-4px);
     box-shadow: var(--shadow-lg);
+}
+
+.timer-card:focus-within {
+    box-shadow: var(--shadow-lg), var(--focus-ring);
 }
 
 .timer-card.expired {
@@ -197,39 +376,6 @@ header h1 {
     box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
 }
 
-.timer-display.expired-display .time-value {
-    color: var(--text-secondary);
-    opacity: 0.6;
-}
-
-.timer-display.expired-display .time-label {
-    color: var(--text-secondary);
-    opacity: 0.5;
-}
-
-.timer-display.expired-display .time-unit {
-    background: #f1f5f9;
-    border: 1px solid #e2e8f0;
-}
-
-.progress-bar-container.expired-progress {
-    background: #f1f5f9;
-}
-
-.progress-bar.expired-progress-bar {
-    background: linear-gradient(90deg, var(--success-color), #34d399);
-    animation: none;
-}
-
-.progress-bar.expired-progress-bar::after {
-    display: none;
-}
-
-.timer-target.expired-target {
-    color: var(--success-color);
-    font-weight: 600;
-}
-
 .timer-header {
     display: flex;
     justify-content: space-between;
@@ -242,6 +388,7 @@ header h1 {
     font-weight: 700;
     color: var(--text-primary);
     flex: 1;
+    margin: 0;
 }
 
 .delete-btn {
@@ -257,7 +404,7 @@ header h1 {
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    transition: all 0.3s ease;
+    transition: all var(--transition-normal);
 }
 
 .delete-btn:hover {
@@ -265,6 +412,15 @@ header h1 {
     color: white;
     transform: rotate(90deg);
 }
+
+.delete-btn:focus {
+    outline: none;
+    box-shadow: var(--focus-ring);
+}
+
+/* ========================================
+   Timer Display
+   ======================================== */
 
 .timer-display {
     display: grid;
@@ -278,7 +434,7 @@ header h1 {
     text-align: center;
     padding: 12px 8px;
     background: var(--bg-color);
-    border-radius: 8px;
+    border-radius: var(--radius-md);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -299,6 +455,7 @@ header h1 {
     display: flex;
     align-items: center;
     justify-content: center;
+    font-variant-numeric: tabular-nums;
 }
 
 .time-label {
@@ -310,6 +467,98 @@ header h1 {
     line-height: 1.2;
 }
 
+/* Expired Display Styles */
+.timer-display.expired-display .time-value {
+    color: var(--text-secondary);
+    opacity: 0.6;
+}
+
+.timer-display.expired-display .time-label {
+    color: var(--text-secondary);
+    opacity: 0.5;
+}
+
+.timer-display.expired-display .time-unit {
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+}
+
+/* ========================================
+   Progress Bar
+   ======================================== */
+
+.timer-progress {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid var(--border-color);
+}
+
+.progress-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.progress-bar-container {
+    width: 100%;
+    height: 8px;
+    background: var(--bg-color);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    border-radius: var(--radius-sm);
+    transition: width 1s ease;
+    position: relative;
+}
+
+.progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.3),
+        transparent
+    );
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+.progress-bar-container.expired-progress {
+    background: #f1f5f9;
+}
+
+.progress-bar.expired-progress-bar {
+    background: linear-gradient(90deg, var(--success-color), #34d399);
+    animation: none;
+}
+
+.progress-bar.expired-progress-bar::after {
+    display: none;
+}
+
+/* ========================================
+   Timer Target & Actions
+   ======================================== */
+
 .timer-target {
     font-size: 0.9rem;
     color: var(--text-secondary);
@@ -318,11 +567,34 @@ header h1 {
     border-top: 1px solid var(--border-color);
 }
 
+.timer-target.expired-target {
+    color: var(--success-color);
+    font-weight: 600;
+}
+
+.timer-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid var(--border-color);
+}
+
+.timer-actions button {
+    flex: 1;
+    padding: 8px;
+    font-size: 0.9rem;
+}
+
+/* ========================================
+   Empty State
+   ======================================== */
+
 .empty-state {
     text-align: center;
     padding: 60px 20px;
     background: var(--card-bg);
-    border-radius: 12px;
+    border-radius: var(--radius-lg);
     box-shadow: var(--shadow);
     color: var(--text-secondary);
 }
@@ -331,7 +603,81 @@ header h1 {
     font-size: 1.1rem;
 }
 
-/* Modal Styles */
+/* ========================================
+   Controls Bar
+   ======================================== */
+
+.controls-bar {
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.controls-left,
+.controls-right {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* ========================================
+   Dropdown Menu
+   ======================================== */
+
+.dropdown-menu {
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.dropdown-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.dropdown-section label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+}
+
+.dropdown-select,
+.form-select {
+    padding: 10px;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    font-family: inherit;
+    background: var(--card-bg);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+}
+
+.dropdown-select:focus,
+.form-select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: var(--focus-ring);
+}
+
+/* ========================================
+   Modal
+   ======================================== */
+
 .modal {
     display: none;
     position: fixed;
@@ -362,7 +708,7 @@ header h1 {
 
 .modal-content {
     background: var(--card-bg);
-    border-radius: 16px;
+    border-radius: var(--radius-xl);
     padding: 30px;
     max-width: 500px;
     width: 90%;
@@ -390,12 +736,21 @@ header h1 {
     font-weight: bold;
     color: var(--text-secondary);
     cursor: pointer;
-    transition: color 0.3s ease;
+    transition: color var(--transition-normal);
     line-height: 1;
+    background: none;
+    border: none;
+    padding: 0;
 }
 
 .close-modal:hover {
     color: var(--danger-color);
+}
+
+.close-modal:focus {
+    outline: none;
+    box-shadow: var(--focus-ring);
+    border-radius: var(--radius-sm);
 }
 
 .modal-body {
@@ -415,298 +770,156 @@ header h1 {
     margin-bottom: 25px;
 }
 
-/* Controls Bar */
-.controls-bar {
-  background: var(--card-bg);
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 20px;
-  box-shadow: var(--shadow);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 10px;
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    justify-content: center;
 }
 
-.controls-left,
-.controls-right {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
+/* Edit Form in Modal */
+.edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+    text-align: left;
 }
 
-.btn-secondary {
-  background: var(--bg-color);
-  color: var(--text-primary);
-  border: 2px solid var(--border-color);
-  display: inline-flex;
-  align-items: center;
-}
+/* ========================================
+   Toast Notifications
+   ======================================== */
 
-.btn-secondary:hover {
-  background: var(--border-color);
-  transform: translateY(-2px);
-}
-
-.btn-secondary span {
-  margin-right: 5px;
-}
-
-.btn-icon {
-  width: 16px;
-  height: 16px;
-  margin-right: 6px;
-  vertical-align: middle;
-  flex-shrink: 0;
-  stroke: currentColor;
-}
-
-.theme-icon {
-  margin-right: 0;
-}
-
-/* Dropdown Menu */
-.dropdown-menu {
-  background: var(--card-bg);
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 20px;
-  box-shadow: var(--shadow);
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
-}
-
-.dropdown-section {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.dropdown-section label {
-  font-weight: 600;
-  font-size: 0.9rem;
-  color: var(--text-primary);
-}
-
-.dropdown-select,
-.form-select {
-  padding: 10px;
-  border: 2px solid var(--border-color);
-  border-radius: 8px;
-  font-size: 1rem;
-  font-family: inherit;
-  background: var(--card-bg);
-  color: var(--text-primary);
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.dropdown-select:focus,
-.form-select:focus {
-  outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-}
-
-/* Timer Actions */
-.timer-actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 15px;
-  padding-top: 15px;
-  border-top: 1px solid var(--border-color);
-}
-
-.timer-actions button {
-  flex: 1;
-  padding: 8px;
-  font-size: 0.9rem;
-}
-
-.btn-pause {
-  background: var(--warning-color);
-  color: white;
-}
-
-.btn-pause:hover {
-  background: #d97706;
-}
-
-.btn-edit {
-  background: var(--secondary-color);
-  color: white;
-}
-
-.btn-edit:hover {
-  background: #7c3aed;
-}
-
-/* Progress Bar */
-.timer-progress {
-  margin-top: 15px;
-  padding-top: 15px;
-  border-top: 1px solid var(--border-color);
-}
-
-.progress-label {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  margin-bottom: 8px;
-  display: flex;
-  justify-content: space-between;
-}
-
-.progress-bar-container {
-  width: 100%;
-  height: 8px;
-  background: var(--bg-color);
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.progress-bar {
-  height: 100%;
-  background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-  border-radius: 4px;
-  transition: width 1s ease;
-  position: relative;
-}
-
-.progress-bar::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.3),
-    transparent
-  );
-  animation: shimmer 2s infinite;
-}
-
-@keyframes shimmer {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
-}
-
-/* Toast Notifications */
 .toast-container {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  z-index: 2000;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  max-width: 400px;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 400px;
 }
 
 .toast {
-  background: var(--card-bg);
-  border-radius: 8px;
-  padding: 16px 20px;
-  box-shadow: var(--shadow-lg);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  animation: slideInRight 0.3s ease;
-  border-left: 4px solid var(--primary-color);
-  min-width: 300px;
+    background: var(--card-bg);
+    border-radius: var(--radius-md);
+    padding: 16px 20px;
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    animation: slideInRight 0.3s ease;
+    border-left: 4px solid var(--primary-color);
+    min-width: 300px;
 }
 
 .toast.success {
-  border-left-color: var(--success-color);
+    border-left-color: var(--success-color);
 }
 
 .toast.error {
-  border-left-color: var(--danger-color);
+    border-left-color: var(--danger-color);
 }
 
 .toast.warning {
-  border-left-color: var(--warning-color);
+    border-left-color: var(--warning-color);
 }
 
 @keyframes slideInRight {
-  from {
-    transform: translateX(400px);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
 }
 
 .toast-content {
-  flex: 1;
+    flex: 1;
 }
 
 .toast-title {
-  font-weight: 600;
-  margin-bottom: 4px;
-  color: var(--text-primary);
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: var(--text-primary);
 }
 
 .toast-message {
-  font-size: 0.9rem;
-  color: var(--text-secondary);
+    font-size: 0.9rem;
+    color: var(--text-secondary);
 }
 
 .toast-close {
-  background: transparent;
-  border: none;
-  font-size: 1.2rem;
-  cursor: pointer;
-  color: var(--text-secondary);
-  padding: 0;
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-  transition: all 0.2s ease;
+    background: transparent;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: var(--text-secondary);
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-fast);
 }
 
 .toast-close:hover {
-  background: var(--bg-color);
-  color: var(--text-primary);
+    background: var(--bg-color);
+    color: var(--text-primary);
 }
 
-/* Edit Modal */
-.edit-modal {
-  display: none;
+.toast-close:focus {
+    outline: none;
+    box-shadow: var(--focus-ring);
 }
 
-.edit-modal.show {
-  display: flex;
+/* ========================================
+   Footer
+   ======================================== */
+
+.sign {
+    text-align: center;
+    padding: 30px 20px;
+    margin-top: 40px;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.95rem;
 }
 
-.edit-form {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  margin-top: 20px;
+.sign a {
+    color: rgba(255, 255, 255, 0.95);
+    text-decoration: none;
+    font-weight: 600;
+    transition: all var(--transition-normal);
+    border-bottom: 1px solid transparent;
 }
 
-/* Dark Theme */
+.sign a:hover {
+    color: #ffffff;
+    border-bottom-color: rgba(255, 255, 255, 0.5);
+}
+
+.sign a:focus {
+    outline: none;
+    box-shadow: var(--focus-ring);
+    border-radius: var(--radius-sm);
+}
+
+/* ========================================
+   Dark Theme
+   ======================================== */
+
 body.dark-theme {
-  --bg-color: #1e293b;
-  --card-bg: #0f172a;
-  --text-primary: #f1f5f9;
-  --text-secondary: #94a3b8;
-  --border-color: #334155;
-  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    --bg-color: #1e293b;
+    --card-bg: #0f172a;
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --border-color: #334155;
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
 }
 
 body.dark-theme .timer-card.expired {
@@ -723,33 +936,6 @@ body.dark-theme .progress-bar-container.expired-progress {
     background: #1e293b;
 }
 
-/* Footer / Sign */
-.sign {
-    text-align: center;
-    padding: 30px 20px;
-    margin-top: 40px;
-    color: rgba(255, 255, 255, 0.9);
-    font-size: 0.95rem;
-}
-
-.sign a {
-    color: rgba(255, 255, 255, 0.95);
-    text-decoration: none;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    border-bottom: 1px solid transparent;
-}
-
-.sign a:hover {
-    color: #ffffff;
-    border-bottom-color: rgba(255, 255, 255, 0.5);
-    transform: translateY(-1px);
-}
-
-.sign a:active {
-    transform: translateY(0);
-}
-
 body.dark-theme .sign {
     color: rgba(241, 245, 249, 0.8);
 }
@@ -763,7 +949,58 @@ body.dark-theme .sign a:hover {
     border-bottom-color: rgba(241, 245, 249, 0.5);
 }
 
-/* Responsive Design */
+/* ========================================
+   Reduced Motion Support
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+    
+    .progress-bar::after {
+        animation: none;
+    }
+    
+    .timer-card,
+    .btn,
+    .delete-btn {
+        transition: none;
+    }
+}
+
+/* ========================================
+   High Contrast Mode Support
+   ======================================== */
+
+@media (prefers-contrast: high) {
+    :root {
+        --border-color: #000;
+        --shadow: 0 0 0 2px #000;
+    }
+    
+    body.dark-theme {
+        --border-color: #fff;
+        --shadow: 0 0 0 2px #fff;
+    }
+    
+    .btn:focus,
+    .form-group input:focus,
+    .form-group select:focus {
+        outline: 3px solid currentColor;
+        outline-offset: 2px;
+    }
+}
+
+/* ========================================
+   Responsive Design
+   ======================================== */
+
 @media (max-width: 768px) {
     header h1 {
         font-size: 2rem;
@@ -837,5 +1074,34 @@ body.dark-theme .sign a:hover {
         padding: 20px 10px;
         font-size: 0.85rem;
     }
+    
+    .modal-content {
+        padding: 20px;
+        margin: 10px;
+    }
 }
 
+/* ========================================
+   Print Styles
+   ======================================== */
+
+@media print {
+    body {
+        background: white;
+        color: black;
+    }
+    
+    .controls-bar,
+    .timer-actions,
+    .delete-btn,
+    .toast-container,
+    .modal {
+        display: none !important;
+    }
+    
+    .timer-card {
+        break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #ccc;
+    }
+}

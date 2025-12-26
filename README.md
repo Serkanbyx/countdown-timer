@@ -1,6 +1,6 @@
 # ⏰ Countdown Timer
 
-A modern, feature-rich countdown timer application built with vanilla JavaScript. Create multiple timers, set target dates and times, and track your countdowns with real-time updates, progress bars, and customizable alerts.
+A modern, feature-rich countdown timer application built with vanilla JavaScript. Create multiple timers, set target dates and times, and track your countdowns with real-time updates, progress bars, browser notifications, and PWA support.
 
 [![Created by Serkanby](https://img.shields.io/badge/Created%20by-Serkanby-blue?style=flat-square)](https://serkanbayraktar.com/)
 [![GitHub](https://img.shields.io/badge/GitHub-Serkanbyx-181717?style=flat-square&logo=github)](https://github.com/Serkanbyx)
@@ -14,6 +14,7 @@ A modern, feature-rich countdown timer application built with vanilla JavaScript
 - **Pause & Resume**: Control timer execution with pause/resume functionality
 - **Edit Timers**: Modify existing timer details including name, date, time, and alert settings
 - **Upcoming Alerts**: Configure alerts before timer completion (1 hour, 30 min, 10 min, 5 min, 1 min)
+- **Browser Notifications**: Native system notifications when timers complete or alerts trigger
 - **Sorting & Filtering**: Sort timers by date or name, filter by active/expired status
 - **Export & Import**: Save and load timers in JSON format for backup and sharing
 - **Dark Mode**: Toggle between light and dark themes with persistent preference
@@ -21,7 +22,9 @@ A modern, feature-rich countdown timer application built with vanilla JavaScript
 - **Visual & Audio Alerts**: Modal popup and sound notification when timer completes
 - **Local Storage**: Automatic persistence - timers survive page refreshes
 - **Responsive Design**: Fully responsive layout for mobile, tablet, and desktop
-- **Expired Timer Management**: Expired timers automatically move to the end of the list with distinct visual styling
+- **PWA Support**: Install as a native app, works offline
+- **Accessibility (a11y)**: ARIA attributes, keyboard navigation, reduced motion support
+- **Expired Timer Management**: Expired timers automatically move to the end of the list
 - **Modern UI/UX**: Clean, minimal interface with smooth animations and SVG icons
 
 ## Live Demo
@@ -42,15 +45,21 @@ Toggle to dark mode for comfortable viewing in low-light environments.
 
 Each timer displays days, hours, minutes, and seconds in equal-sized boxes with progress tracking.
 
+### PWA Install
+
+Install the app on your device for offline access and native-like experience.
+
 ## Technologies
 
-- **HTML5**: Semantic markup, form elements, and accessibility features
-- **CSS3**: Modern CSS with Grid, Flexbox, CSS Variables, animations, and responsive design
-- **Vanilla JavaScript (ES6+)**: Classes, arrow functions, template literals, destructuring
-- **LocalStorage API**: Client-side data persistence for timers and theme preferences
+- **HTML5**: Semantic markup, form elements, ARIA attributes for accessibility
+- **CSS3**: Modern CSS with Grid, Flexbox, CSS Variables, animations, reduced motion support
+- **Vanilla JavaScript (ES6+)**: Classes, arrow functions, template literals, async/await
+- **LocalStorage API**: Client-side data persistence for timers and preferences
 - **Web Audio API**: Programmatic audio generation for alert sounds
-- **Date API**: Native JavaScript Date object for time calculations and formatting
-- **SVG Icons**: Scalable vector icons for buttons and UI elements
+- **Notifications API**: Native browser notifications for timer alerts
+- **Service Worker**: Offline caching and PWA functionality
+- **Web App Manifest**: PWA installation and app metadata
+- **Date API**: Native JavaScript Date object for time calculations
 
 ## Installation
 
@@ -93,7 +102,13 @@ npx serve
 
 #### Option 4: Direct File Opening
 
-Simply open `index.html` directly in your browser (note: some features may be limited).
+Simply open `index.html` directly in your browser (note: PWA and notifications require a server).
+
+### PWA Installation
+
+1. Open the app in Chrome, Edge, or Safari
+2. Click "Install" in the address bar or use the browser menu
+3. The app will be added to your home screen/desktop
 
 ## Usage
 
@@ -108,22 +123,28 @@ Simply open `index.html` directly in your browser (note: some features may be li
 2. **Managing Timers**:
 
    - **View**: Timers automatically start and display real-time countdown
-   - **Pause/Resume**: Click the pause button to freeze the timer, resume button to continue from the exact moment
+   - **Pause/Resume**: Click the pause button to freeze the timer, resume button to continue
    - **Edit**: Click "Edit" button to modify timer details
-   - **Delete**: Click the "x" button in the top-right corner of any timer card
+   - **Delete**: Click the "×" button in the top-right corner of any timer card
 
 3. **Sorting & Filtering**:
 
-   - Click "Sort" to organize timers by date (near to far, far to near) or name (A-Z, Z-A)
-   - Click "Filter" to view all timers, only active timers, or only expired timers
-   - Expired timers are automatically moved to the end of the list
+   - Click "Sort" to organize timers by date or name
+   - Click "Filter" to view all, active, or expired timers
+   - Expired timers are automatically moved to the end
 
 4. **Export/Import**:
 
    - Click "Export" to download all timers as a JSON file
-   - Click "Import" to load previously exported timers from a JSON file
+   - Click "Import" to load previously exported timers
 
-5. **Theme Toggle**:
+5. **Notifications**:
+
+   - Click the notification bell to enable/disable browser notifications
+   - Allow notification permission when prompted
+   - Receive alerts when timers complete or reach warning thresholds
+
+6. **Theme Toggle**:
    - Click the theme icon (moon/sun) to switch between light and dark modes
    - Your preference is automatically saved
 
@@ -131,11 +152,10 @@ Simply open `index.html` directly in your browser (note: some features may be li
 
 ### Timer Calculation
 
-The application calculates time remaining by comparing the current time with the target date/time:
+The application calculates time remaining by comparing the current time with the target:
 
 ```javascript
 calculateTimeRemaining() {
-    // If paused, return the saved remaining time
     if (this.isPaused && this.pausedTimeRemaining) {
         return this.pausedTimeRemaining;
     }
@@ -144,81 +164,86 @@ calculateTimeRemaining() {
     const target = this.getTargetDateTime();
     const difference = target - now;
 
-    const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((difference % (1000 * 60)) / 1000);
-
-    return { days, hours, minutes, seconds, expired: difference <= 0 };
+    return msToTimeComponents(difference);
 }
 ```
 
-### Pause/Resume Mechanism
+### Global Interval (Performance Optimized)
 
-When paused, the exact remaining time is stored. On resume, a new target date is calculated:
+Instead of individual intervals per timer, a single global interval updates all timers:
 
 ```javascript
-pause() {
-    this.pausedTimeRemaining = this.calculateTimeRemaining();
-    this.isPaused = true;
-    this.stop();
-}
+globalInterval = setInterval(() => {
+  timers.forEach((timer) => {
+    if (timer.isPaused || timer.isExpired) return;
+    updateTimerDisplay(timer);
 
-resume() {
-    if (this.pausedTimeRemaining && !this.pausedTimeRemaining.expired) {
-        const now = new Date();
-        const remainingMs =
-            (this.pausedTimeRemaining.days * 24 * 60 * 60 * 1000) +
-            (this.pausedTimeRemaining.hours * 60 * 60 * 1000) +
-            (this.pausedTimeRemaining.minutes * 60 * 1000) +
-            (this.pausedTimeRemaining.seconds * 1000);
-
-        const newTarget = new Date(now.getTime() + remainingMs);
-        this.targetDate = newTarget.toISOString().split('T')[0];
-        this.targetTime = `${hours}:${minutes}:${seconds}`; // HH:MM:SS format
+    // Check for alerts and expiration
+    if (timer.shouldShowAlert()) {
+      showTimerWarningNotification(timer.name, timer.alertBefore);
     }
-    this.isPaused = false;
-    this.start();
+  });
+}, UPDATE_INTERVAL);
+```
+
+### Browser Notifications
+
+Native notifications are triggered for timer events:
+
+```javascript
+function showBrowserNotification(title, options = {}) {
+  if (!areNotificationsEnabled()) return null;
+
+  const notification = new Notification(title, {
+    icon: "/icons/icon-192.svg",
+    vibrate: [200, 100, 200],
+    requireInteraction: true,
+    ...options,
+  });
+
+  notification.onclick = () => {
+    window.focus();
+    notification.close();
+  };
+
+  return notification;
 }
 ```
 
-### Progress Bar Calculation
+### Service Worker (Offline Support)
 
-Progress is calculated based on elapsed time from timer creation:
-
-```javascript
-calculateProgress() {
-    const elapsed = this.initialDuration - timeRemaining.totalSeconds;
-    return Math.max(0, Math.min(100, (elapsed / this.initialDuration) * 100));
-}
-```
-
-### Interval Management
-
-Each timer runs its own interval that updates every second:
+The service worker caches all assets for offline functionality:
 
 ```javascript
-start() {
-    if (this.isPaused) return;
-    this.stop(); // Prevent duplicate intervals
-    this.updateDisplay();
-    this.intervalId = setInterval(() => {
-        this.updateDisplay();
-    }, 1000);
-}
+const urlsToCache = [
+  "/",
+  "/index.html",
+  "/styles.css",
+  "/script.js",
+  "/manifest.json",
+  "/icons/icon-192.svg",
+];
+
+self.addEventListener("fetch", (event) => {
+  event.respondWith(
+    caches
+      .match(event.request)
+      .then((response) => response || fetch(event.request))
+  );
+});
 ```
 
 ### LocalStorage Structure
 
-Timers are stored in LocalStorage as JSON with pause state preservation:
+Timers are stored in LocalStorage as JSON:
 
 ```json
 [
   {
-    "id": 1234567890.123,
+    "id": "550e8400-e29b-41d4-a716-446655440000",
     "name": "New Year",
     "targetDate": "2025-12-31",
-    "targetTime": "23:59",
+    "targetTime": "23:59:00",
     "alertBefore": 60,
     "createdAt": "2025-01-01T00:00:00.000Z",
     "isPaused": false,
@@ -246,11 +271,15 @@ Edit CSS variables in `styles.css`:
 
 ### Modify Alert Sound
 
-Edit the `playAlertSound()` function in `script.js`:
+Edit the `ALERT_SOUND` constant in `script.js`:
 
 ```javascript
-oscillator.frequency.value = 800; // Change frequency (Hz)
-oscillator.type = "sine"; // Options: 'sine', 'square', 'sawtooth', 'triangle'
+const ALERT_SOUND = {
+  frequency: 800, // Change frequency (Hz)
+  type: "sine", // 'sine', 'square', 'sawtooth', 'triangle'
+  duration: 0.5, // Duration in seconds
+  volume: 0.3, // Volume (0-1)
+};
 ```
 
 ### Add Custom Alert Times
@@ -262,14 +291,19 @@ Add new options to the alert dropdown in `index.html`:
 <option value="15">15 minutes before</option>
 ```
 
-### Change Update Interval
+### Disable Animations (Accessibility)
 
-Modify the interval duration in the `start()` method:
+Users who prefer reduced motion get automatic support:
 
-```javascript
-this.intervalId = setInterval(() => {
-  this.updateDisplay();
-}, 500); // Update every 500ms instead of 1000ms
+```css
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
 ```
 
 ## Features in Detail
@@ -282,6 +316,8 @@ this.intervalId = setInterval(() => {
 ✅ Edit timer details  
 ✅ Progress bar visualization  
 ✅ Upcoming alerts (configurable)  
+✅ Browser Notifications API  
+✅ PWA support (offline mode)  
 ✅ Sorting by date/name  
 ✅ Filtering by status  
 ✅ Export/Import JSON  
@@ -290,6 +326,11 @@ this.intervalId = setInterval(() => {
 ✅ Audio alerts  
 ✅ LocalStorage persistence  
 ✅ Responsive design  
+✅ Accessibility (ARIA, keyboard nav)  
+✅ Reduced motion support  
+✅ High contrast mode support  
+✅ Single global interval (performance)  
+✅ Event delegation (performance)  
 ✅ SVG icons  
 ✅ Expired timer handling
 
@@ -298,12 +339,33 @@ this.intervalId = setInterval(() => {
 - [ ] Timezone selection support
 - [ ] Recurring timers
 - [ ] Timer categories/tags
-- [ ] Custom alert sounds
+- [ ] Custom alert sounds (upload)
 - [ ] Timer sharing via URL
 - [ ] Statistics and analytics
 - [ ] Widget mode
-- [ ] Browser notifications API
-- [ ] PWA support (offline mode)
+- [ ] Cloud sync
+
+## Project Structure
+
+```
+s1.5_Countdown Timer/
+├── index.html          # Main HTML with semantic markup
+├── styles.css          # CSS with variables, a11y support
+├── script.js           # All JavaScript (1370 lines)
+├── manifest.json       # PWA manifest
+├── service-worker.js   # Offline caching
+├── favicon.svg         # App favicon
+├── README.md           # Documentation
+└── icons/              # PWA icons
+    ├── icon-72.svg
+    ├── icon-96.svg
+    ├── icon-128.svg
+    ├── icon-144.svg
+    ├── icon-152.svg
+    ├── icon-192.svg
+    ├── icon-384.svg
+    └── icon-512.svg
+```
 
 ## Contributing
 
@@ -320,8 +382,10 @@ Contributions are welcome! Please follow these steps:
 - `feat:` - New feature
 - `fix:` - Bug fix
 - `docs:` - Documentation changes
-- `style:` - Code style changes (formatting, missing semicolons, etc.)
+- `style:` - Code style changes (formatting, etc.)
 - `refactor:` - Code refactoring
+- `perf:` - Performance improvements
+- `a11y:` - Accessibility improvements
 - `test:` - Adding or updating tests
 - `chore:` - Maintenance tasks
 
@@ -339,10 +403,11 @@ This project is open source and available under the [MIT License](LICENSE).
 
 ## Acknowledgments
 
-- Modern browser APIs (LocalStorage, Web Audio API)
+- Modern browser APIs (LocalStorage, Web Audio, Notifications, Service Worker)
 - SVG icons inspired by Feather Icons
 - CSS Grid and Flexbox for responsive layouts
 - Native JavaScript Date API for time calculations
+- WAI-ARIA best practices for accessibility
 
 ## Contact
 

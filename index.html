@@ -3,64 +3,168 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Countdown Timer</title>
+    <title>Countdown Timer - Create Multiple Timers with Notifications</title>
+
+    <!-- SEO Meta Tags -->
+    <meta
+      name="description"
+      content="A modern countdown timer application. Create multiple timers, set target dates and times, and track your countdowns with real-time updates, progress bars, and customizable alerts."
+    />
+    <meta
+      name="keywords"
+      content="countdown, timer, alarm, reminder, stopwatch, productivity"
+    />
+    <meta name="author" content="Serkanby" />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#6366f1" />
+    <meta name="msapplication-TileColor" content="#6366f1" />
+
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Countdown Timer" />
+    <meta
+      property="og:description"
+      content="Create and manage multiple countdown timers with real-time updates and notifications."
+    />
+    <meta property="og:image" content="/icons/icon-512.svg" />
+    <meta property="og:url" content="https://countdown-timerrrr.netlify.app/" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Countdown Timer" />
+    <meta
+      name="twitter:description"
+      content="Create and manage multiple countdown timers with real-time updates and notifications."
+    />
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.svg" />
+
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+
+    <!-- Stylesheet -->
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
+    <!-- Skip to main content link for accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
     <div class="container">
-      <header>
+      <header role="banner">
         <h1>Countdown Timer</h1>
         <p class="subtitle">Select target date and time, start the countdown</p>
       </header>
 
-      <div class="timer-form">
-        <div class="form-group">
-          <label for="timerName">Timer Name</label>
-          <input
-            type="text"
-            id="timerName"
-            placeholder="e.g., New Year, Birthday..."
-            maxlength="50"
-          />
+      <!-- Main Content -->
+      <main id="main-content">
+        <!-- Timer Form -->
+        <form class="timer-form" id="timerForm" aria-label="Create new timer">
+          <div class="form-group">
+            <label for="timerName">Timer Name</label>
+            <input
+              type="text"
+              id="timerName"
+              name="timerName"
+              placeholder="e.g., New Year, Birthday..."
+              maxlength="50"
+              autocomplete="off"
+              aria-describedby="timerNameHelp"
+            />
+            <span id="timerNameHelp" class="sr-only"
+              >Optional name for your timer</span
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="targetDate"
+              >Target Date
+              <span class="required" aria-hidden="true">*</span></label
+            >
+            <input
+              type="date"
+              id="targetDate"
+              name="targetDate"
+              required
+              aria-required="true"
+              aria-describedby="targetDateHelp"
+            />
+            <span id="targetDateHelp" class="sr-only"
+              >Select the target date for your countdown</span
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="targetTime"
+              >Target Time
+              <span class="required" aria-hidden="true">*</span></label
+            >
+            <input
+              type="time"
+              id="targetTime"
+              name="targetTime"
+              required
+              aria-required="true"
+              aria-describedby="targetTimeHelp"
+            />
+            <span id="targetTimeHelp" class="sr-only"
+              >Select the target time for your countdown</span
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="alertBefore">Alert Before</label>
+            <select id="alertBefore" name="alertBefore" class="form-select">
+              <option value="0">Only when finished</option>
+              <option value="60">1 hour before</option>
+              <option value="30">30 minutes before</option>
+              <option value="10">10 minutes before</option>
+              <option value="5">5 minutes before</option>
+              <option value="1">1 minute before</option>
+            </select>
+          </div>
+
+          <button type="submit" id="addTimerBtn" class="btn btn-primary">
+            <span aria-hidden="true">+</span> Add Timer
+          </button>
+        </form>
+
+        <!-- Timers Container -->
+        <section
+          id="timersContainer"
+          class="timers-container"
+          aria-label="Active timers"
+          aria-live="polite"
+        >
+          <!-- Timers will be dynamically added here -->
+        </section>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="empty-state" role="status">
+          <p>No timers added yet. Use the form above to add a new timer.</p>
         </div>
+      </main>
 
-        <div class="form-group">
-          <label for="targetDate">Target Date</label>
-          <input type="date" id="targetDate" required />
-        </div>
-
-        <div class="form-group">
-          <label for="targetTime">Target Time</label>
-          <input type="time" id="targetTime" required />
-        </div>
-
-        <div class="form-group">
-          <label for="alertBefore">Alert Before</label>
-          <select id="alertBefore" class="form-select">
-            <option value="0">Only when finished</option>
-            <option value="60">1 hour before</option>
-            <option value="30">30 minutes before</option>
-            <option value="10">10 minutes before</option>
-            <option value="5">5 minutes before</option>
-            <option value="1">1 minute before</option>
-          </select>
-        </div>
-
-        <button id="addTimerBtn" class="btn btn-primary">Add Timer</button>
-      </div>
-
-      <div id="timersContainer" class="timers-container">
-        <!-- Timers will be dynamically added here -->
-      </div>
-
-      <div id="emptyState" class="empty-state">
-        <p>No timers added yet. Use the form above to add a new timer.</p>
-      </div>
-
-      <!-- Controls -->
-      <div class="controls-bar" id="controlsBar" style="display: none">
+      <!-- Controls Bar -->
+      <nav
+        class="controls-bar"
+        id="controlsBar"
+        style="display: none"
+        aria-label="Timer controls"
+      >
         <div class="controls-left">
-          <button id="sortBtn" class="btn btn-secondary">
+          <button
+            id="sortBtn"
+            class="btn btn-secondary"
+            aria-label="Sort timers"
+            aria-haspopup="true"
+          >
             <svg
               class="btn-icon"
               width="16"
@@ -71,12 +175,18 @@
               stroke-width="2"
               stroke-linecap="round"
               stroke-linejoin="round"
+              aria-hidden="true"
             >
               <path d="M3 6h18M7 12h10M11 18h2" />
             </svg>
             Sort
           </button>
-          <button id="filterBtn" class="btn btn-secondary">
+          <button
+            id="filterBtn"
+            class="btn btn-secondary"
+            aria-label="Filter timers"
+            aria-haspopup="true"
+          >
             <svg
               class="btn-icon"
               width="16"
@@ -87,13 +197,18 @@
               stroke-width="2"
               stroke-linecap="round"
               stroke-linejoin="round"
+              aria-hidden="true"
             >
               <circle cx="11" cy="11" r="8" />
               <path d="m21 21-4.35-4.35" />
             </svg>
             Filter
           </button>
-          <button id="exportBtn" class="btn btn-secondary">
+          <button
+            id="exportBtn"
+            class="btn btn-secondary"
+            aria-label="Export timers to file"
+          >
             <svg
               class="btn-icon"
               width="16"
@@ -104,6 +219,7 @@
               stroke-width="2"
               stroke-linecap="round"
               stroke-linejoin="round"
+              aria-hidden="true"
             >
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
               <polyline points="7 10 12 15 17 10" />
@@ -115,9 +231,14 @@
             type="file"
             id="importInput"
             accept=".json"
-            style="display: none"
+            class="sr-only"
+            aria-label="Import timers from file"
           />
-          <button id="importBtn" class="btn btn-secondary">
+          <button
+            id="importBtn"
+            class="btn btn-secondary"
+            aria-label="Import timers from file"
+          >
             <svg
               class="btn-icon"
               width="16"
@@ -128,6 +249,7 @@
               stroke-width="2"
               stroke-linecap="round"
               stroke-linejoin="round"
+              aria-hidden="true"
             >
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
               <polyline points="17 8 12 3 7 8" />
@@ -138,9 +260,34 @@
         </div>
         <div class="controls-right">
           <button
+            id="notificationToggle"
+            class="btn btn-secondary"
+            title="Toggle Notifications"
+            aria-label="Toggle notifications"
+            aria-pressed="false"
+          >
+            <svg
+              class="btn-icon notification-icon"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+            </svg>
+          </button>
+          <button
             id="themeToggle"
             class="btn btn-secondary"
             title="Toggle Theme"
+            aria-label="Toggle dark/light theme"
+            aria-pressed="false"
           >
             <svg
               id="moonIcon"
@@ -153,6 +300,7 @@
               stroke-width="2"
               stroke-linecap="round"
               stroke-linejoin="round"
+              aria-hidden="true"
             >
               <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
             </svg>
@@ -168,6 +316,7 @@
               stroke-linecap="round"
               stroke-linejoin="round"
               style="display: none"
+              aria-hidden="true"
             >
               <circle cx="12" cy="12" r="5" />
               <line x1="12" y1="1" x2="12" y2="3" />
@@ -181,13 +330,23 @@
             </svg>
           </button>
         </div>
-      </div>
+      </nav>
 
       <!-- Sort/Filter Dropdown -->
-      <div id="sortFilterMenu" class="dropdown-menu" style="display: none">
+      <div
+        id="sortFilterMenu"
+        class="dropdown-menu"
+        style="display: none"
+        role="menu"
+        aria-label="Sort and filter options"
+      >
         <div class="dropdown-section">
-          <label>Sort By:</label>
-          <select id="sortSelect" class="dropdown-select">
+          <label for="sortSelect" id="sortLabel">Sort By:</label>
+          <select
+            id="sortSelect"
+            class="dropdown-select"
+            aria-labelledby="sortLabel"
+          >
             <option value="date-asc">By Date (Near → Far)</option>
             <option value="date-desc">By Date (Far → Near)</option>
             <option value="name-asc">By Name (A-Z)</option>
@@ -195,8 +354,12 @@
           </select>
         </div>
         <div class="dropdown-section">
-          <label>Filter:</label>
-          <select id="filterSelect" class="dropdown-select">
+          <label for="filterSelect" id="filterLabel">Filter:</label>
+          <select
+            id="filterSelect"
+            class="dropdown-select"
+            aria-labelledby="filterLabel"
+          >
             <option value="all">All</option>
             <option value="active">Active</option>
             <option value="expired">Expired</option>
@@ -205,7 +368,7 @@
       </div>
 
       <!-- Footer -->
-      <footer class="sign">
+      <footer class="sign" role="contentinfo">
         Created by
         <a
           href="https://serkanbayraktar.com/"
@@ -223,21 +386,45 @@
       </footer>
     </div>
 
-    <!-- Toast Container -->
-    <div id="toastContainer" class="toast-container"></div>
+    <!-- Toast Container for notifications -->
+    <div
+      id="toastContainer"
+      class="toast-container"
+      role="region"
+      aria-label="Notifications"
+      aria-live="polite"
+    ></div>
 
     <!-- Alert Modal -->
-    <div id="alertModal" class="modal">
+    <div
+      id="alertModal"
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modalTitle"
+      aria-describedby="modalDescription"
+    >
       <div class="modal-content">
-        <span class="close-modal">&times;</span>
-        <div class="modal-body">
-          <h2>🎉 Time's Up!</h2>
+        <button class="close-modal" aria-label="Close modal">&times;</button>
+        <div class="modal-body" id="modalDescription">
+          <h2 id="modalTitle">🎉 Time's Up!</h2>
           <p id="alertMessage"></p>
           <button id="closeAlertBtn" class="btn btn-primary">OK</button>
         </div>
       </div>
     </div>
 
+    <!-- Main JavaScript -->
     <script src="script.js"></script>
+
+    <!-- PWA Install Prompt -->
+    <script>
+      // Deferred install prompt for PWA
+      let deferredPrompt;
+      window.addEventListener("beforeinstallprompt", (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+      });
+    </script>
   </body>
 </html>
