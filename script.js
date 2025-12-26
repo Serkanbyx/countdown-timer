@@ -723,31 +723,54 @@ function createTimerCard(timer) {
 }
 
 /**
- * Sets up event delegation for timer actions
+ * Flag to track if global timer event delegation is set up
  */
-function setupTimerEventDelegation(container, callbacks) {
-    container.onclick = function(e) {
+let isTimerEventDelegationSetup = false;
+
+/**
+ * Sets up global event delegation for timer actions (called once)
+ */
+function setupGlobalTimerEventDelegation() {
+    if (isTimerEventDelegationSetup) return;
+
+    document.addEventListener('click', function(e) {
         const btn = e.target.closest('[data-action]');
         if (!btn) return;
+
+        // Ensure the button is inside timers container
+        const container = document.getElementById('timersContainer');
+        if (!container || !container.contains(btn)) return;
 
         const action = btn.dataset.action;
         const timerId = btn.dataset.timerId;
 
+        if (!timerId) return;
+
         switch (action) {
             case 'delete':
-                callbacks.onDelete?.(timerId);
+                deleteTimer(timerId);
                 break;
             case 'edit':
-                callbacks.onEdit?.(timerId);
+                editTimer(timerId);
                 break;
             case 'pause':
-                callbacks.onPause?.(timerId);
+                pauseTimer(timerId);
                 break;
             case 'resume':
-                callbacks.onResume?.(timerId);
+                resumeTimer(timerId);
                 break;
         }
-    };
+    });
+
+    isTimerEventDelegationSetup = true;
+}
+
+/**
+ * Sets up event delegation for timer actions (legacy, now calls global setup)
+ */
+function setupTimerEventDelegation(container, callbacks) {
+    // Use global event delegation instead
+    setupGlobalTimerEventDelegation();
 }
 
 /**
@@ -978,6 +1001,9 @@ async function init() {
         document.body.classList.add('dark-theme');
     }
     updateThemeIcon(isDark);
+
+    // Setup global timer event delegation before loading timers
+    setupGlobalTimerEventDelegation();
 
     loadTimers();
     setupEventListeners();
