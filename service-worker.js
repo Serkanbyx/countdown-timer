@@ -3,18 +3,12 @@
  * Provides offline support and caching
  */
 
-const CACHE_NAME = 'countdown-timer-v1';
+const CACHE_NAME = 'countdown-timer-v2';
 const STATIC_ASSETS = [
     '/',
     '/index.html',
     '/styles.css',
-    '/js/main.js',
-    '/js/constants.js',
-    '/js/utils.js',
-    '/js/storage.js',
-    '/js/Timer.js',
-    '/js/ui.js',
-    '/js/notifications.js',
+    '/script.js',
     '/manifest.json',
     '/icons/icon-72.svg',
     '/icons/icon-96.svg',
@@ -34,8 +28,10 @@ self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then((cache) => {
-                console.log('Caching static assets');
-                return cache.addAll(STATIC_ASSETS);
+                // Cache assets individually so one failure doesn't abort install
+                return Promise.allSettled(
+                    STATIC_ASSETS.map((asset) => cache.add(asset))
+                );
             })
             .then(() => self.skipWaiting())
     );
@@ -89,8 +85,9 @@ self.addEventListener('fetch', (event) => {
                         return response;
                     })
                     .catch(() => {
-                        // Offline fallback for HTML pages
-                        if (event.request.headers.get('accept').includes('text/html')) {
+                        // Offline fallback for HTML navigation requests
+                        const acceptHeader = event.request.headers.get('accept') || '';
+                        if (event.request.mode === 'navigate' || acceptHeader.includes('text/html')) {
                             return caches.match('/index.html');
                         }
                     });
@@ -122,7 +119,6 @@ self.addEventListener('push', (event) => {
         body: event.data?.text() || 'Timer notification',
         icon: '/icons/icon-192.svg',
         badge: '/icons/icon-72.svg',
-        vibrate: [200, 100, 200],
         requireInteraction: true
     };
 

@@ -87,7 +87,7 @@ function padZero(value) {
  */
 function msToTimeComponents(ms) {
     if (ms <= 0) {
-        return { days: 0, hours: 0, minutes: 0, seconds: 0, totalSeconds: 0, expired: true };
+        return { days: 0, hours: 0, minutes: 0, seconds: 0, totalSeconds: 0, totalMs: 0, expired: true };
     }
 
     const days = Math.floor(ms / TIME.DAY);
@@ -96,7 +96,7 @@ function msToTimeComponents(ms) {
     const seconds = Math.floor((ms % TIME.MINUTE) / TIME.SECOND);
     const totalSeconds = Math.floor(ms / TIME.SECOND);
 
-    return { days, hours, minutes, seconds, totalSeconds, expired: false };
+    return { days, hours, minutes, seconds, totalSeconds, totalMs: ms, expired: false };
 }
 
 /**
@@ -318,7 +318,6 @@ function showBrowserNotification(title, options = {}) {
         const notification = new Notification(title, {
             icon: '/icons/icon-192.svg',
             badge: '/icons/icon-72.svg',
-            vibrate: [200, 100, 200],
             requireInteraction: true,
             ...options
         });
@@ -455,12 +454,14 @@ class Timer {
     resume() {
         if (this.pausedTimeRemaining && !this.pausedTimeRemaining.expired) {
             const now = new Date();
-            const remainingMs = 
-                (this.pausedTimeRemaining.days * TIME.DAY) +
+            // Prefer the raw millisecond value to avoid sub-second drift.
+            // Fall back to reconstructing from components for older saved data.
+            const remainingMs = this.pausedTimeRemaining.totalMs ??
+                ((this.pausedTimeRemaining.days * TIME.DAY) +
                 (this.pausedTimeRemaining.hours * TIME.HOUR) +
                 (this.pausedTimeRemaining.minutes * TIME.MINUTE) +
-                (this.pausedTimeRemaining.seconds * TIME.SECOND);
-            
+                (this.pausedTimeRemaining.seconds * TIME.SECOND));
+
             const newTarget = new Date(now.getTime() + remainingMs);
             this.targetDate = newTarget.toISOString().split('T')[0];
             
@@ -834,6 +835,34 @@ function showAlertModal(timerName, onClose) {
 }
 
 /**
+ * Shows a confirmation modal and resolves the user's choice via callback
+ */
+function showConfirmModal(message, onConfirm) {
+    const modal = elements.alertModal;
+    const modalBody = elements.modalBody;
+
+    if (!modal || !modalBody) return;
+
+    modalBody.innerHTML = `
+        <h2 id="modalTitle">⚠️ Confirm</h2>
+        <p>${escapeHtml(message)}</p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-danger" id="confirmActionBtn" autofocus>Delete</button>
+            <button type="button" class="btn btn-secondary" id="cancelConfirmBtn">Cancel</button>
+        </div>
+    `;
+
+    modal.classList.add('show');
+
+    document.getElementById('confirmActionBtn')?.addEventListener('click', () => {
+        closeModal();
+        onConfirm?.();
+    });
+
+    document.getElementById('cancelConfirmBtn')?.addEventListener('click', closeModal);
+}
+
+/**
  * Shows the edit timer modal
  */
 function showEditModal(timer, onSave) {
@@ -1145,14 +1174,12 @@ function deleteTimer(id) {
     const timer = timers.find(t => t.id === id);
     if (!timer) return;
 
-    if (!confirm(`Are you sure you want to delete "${timer.name}"?`)) {
-        return;
-    }
-
-    timers = timers.filter(t => t.id !== id);
-    saveTimers(timers);
-    renderTimersList();
-    showToast(`"${timer.name}" deleted`, TOAST_TYPES.SUCCESS);
+    showConfirmModal(`Are you sure you want to delete "${timer.name}"?`, () => {
+        timers = timers.filter(t => t.id !== id);
+        saveTimers(timers);
+        renderTimersList();
+        showToast(`"${timer.name}" deleted`, TOAST_TYPES.SUCCESS);
+    });
 }
 
 /**

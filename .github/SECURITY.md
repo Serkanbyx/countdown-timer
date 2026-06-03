@@ -57,4 +57,3 @@ When contributing to this project, please ensure:
 For security concerns, please contact: **serkanbyx1@gmail.com**
 
 Thank you for helping keep this project and its users safe!
-

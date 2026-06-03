@@ -163,4 +163,3 @@ Feel free to open an issue with your question or contact the maintainer directly
 ---
 
 Thank you for contributing!
-

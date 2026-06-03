@@ -196,7 +196,7 @@ function showBrowserNotification(title, options = {}) {
 
   const notification = new Notification(title, {
     icon: "/icons/icon-192.svg",
-    vibrate: [200, 100, 200],
+    badge: "/icons/icon-72.svg",
     requireInteraction: true,
     ...options,
   });
@@ -215,13 +215,15 @@ function showBrowserNotification(title, options = {}) {
 The service worker caches all assets for offline functionality:
 
 ```javascript
-const urlsToCache = [
+const CACHE_NAME = "countdown-timer-v2";
+const STATIC_ASSETS = [
   "/",
   "/index.html",
   "/styles.css",
   "/script.js",
   "/manifest.json",
-  "/icons/icon-192.svg",
+  "/favicon.svg",
+  // ...PWA icons
 ];
 
 self.addEventListener("fetch", (event) => {
@@ -351,20 +353,30 @@ Users who prefer reduced motion get automatic support:
 s1.5_Countdown Timer/
 ├── index.html          # Main HTML with semantic markup
 ├── styles.css          # CSS with variables, a11y support
-├── script.js           # All JavaScript (1370 lines)
+├── script.js           # All application logic (vanilla JS)
 ├── manifest.json       # PWA manifest
 ├── service-worker.js   # Offline caching
 ├── favicon.svg         # App favicon
+├── LICENSE             # MIT License
 ├── README.md           # Documentation
-└── icons/              # PWA icons
-    ├── icon-72.svg
-    ├── icon-96.svg
-    ├── icon-128.svg
-    ├── icon-144.svg
-    ├── icon-152.svg
-    ├── icon-192.svg
-    ├── icon-384.svg
-    └── icon-512.svg
+├── icons/              # PWA icons
+│   ├── icon-72.svg
+│   ├── icon-96.svg
+│   ├── icon-128.svg
+│   ├── icon-144.svg
+│   ├── icon-152.svg
+│   ├── icon-192.svg
+│   ├── icon-384.svg
+│   └── icon-512.svg
+└── .github/            # Community health files
+    ├── CONTRIBUTING.md
+    ├── CODE_OF_CONDUCT.md
+    ├── SECURITY.md
+    ├── PULL_REQUEST_TEMPLATE.md
+    └── ISSUE_TEMPLATE/
+        ├── bug_report.yml
+        ├── feature_request.yml
+        └── config.yml
 ```
 
 ## Contributing

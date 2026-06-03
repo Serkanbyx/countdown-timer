@@ -147,4 +147,3 @@ body:
           required: true
         - label: I am using the latest version of the application
           required: false
-
